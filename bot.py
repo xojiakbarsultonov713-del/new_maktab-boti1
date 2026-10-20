@@ -8,7 +8,8 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 
 # --- TOKEN VA SOZLAMALAR ---
-BOT_TOKEN = "8620955124:AAHXLEXPjTyNT5t_FADWc4k_0kXbtWKkVVA"
+# BotFather'dan olingan eng yangi toza token o'rnatildi:
+BOT_TOKEN = "8620955124:AAHnBLXZsrgwpmZy3Yi8Uy_XzjX-AwYVqXU"
 # Sizning shaxsiy Telegram ID raqamingiz bosh admin qilib o'rnatildi:
 ADMIN_ID = 5039354291 
 
@@ -137,25 +138,30 @@ async def admin_save_ball(message: types.Message, state: FSMContext):
         
     await state.clear()
 
-# --- TUGMA BOSILGANDA ISHLAYDIGAN FUNKSIYALAR ---
+# --- TUGMA BOSILGANDA ISHLAYDIGAN ODDIY FUNKSIYALAR ---
 @dp.callback_query(F.data == "news")
 async def cb_news(callback: types.CallbackQuery):
-    await callback.message.answer("📰 Maktab yangiliklari:\n\nTez kunda shu yerda 18-maktabning eng so'nggi yangiliklari joylab boriladi.")
+    await callback.message.answer("📰 **Maktab yangiliklari:**\n\nTez kunda shu yerda 18-maktabning eng so'nggi yangiliklari va tadbirlari joylab boriladi.", parse_mode="Markdown")
     await callback.answer()
 
 @dp.callback_query(F.data == "schedule")
 async def cb_schedule(callback: types.CallbackQuery):
-    await callback.message.answer("📅 Dars jadvali:\n\nBu bo'limda sinflar kesimidagi dars jadvallari ko'rsatiladi.")
+    await callback.message.answer("📅 **Dars jadvali:**\n\n9-11 sinflar dars jadvallari yaqin kunlarda shu bo'limga to'liq joylashtiriladi.", parse_mode="Markdown")
     await callback.answer()
 
 @dp.callback_query(F.data == "materials")
 async def cb_materials(callback: types.CallbackQuery):
-    await callback.message.answer("📚 O'quv materiallari:\n\nO'qituvchilar va o'quvchilar uchun foydali darsliklar hamda qo'llanmalar.")
+    await callback.message.answer("📚 **O'quv materiallari:**\n\nO'qituvchilar va o'quvchilar uchun foydali darsliklar hamda qo'llanmalar tez kunda yuklanadi.", parse_mode="Markdown")
     await callback.answer()
 
 @dp.callback_query(F.data == "it_club")
 async def cb_it_club(callback: types.CallbackQuery):
-    await callback.message.answer("🤖 IT & AI Klubi:\n\n18-maktabning IT va sun'iy intellekt to'garaklari haqida ma'lumot.")
+    await callback.message.answer("🤖 **IT & AI Klubi:**\n\n18-maktabning IT va sun'iy intellekt to'garaklari, dars kunlari va qilinayotgan loyihalar haqida ma'lumot.", parse_mode="Markdown")
+    await callback.answer()
+
+@dp.callback_query(F.data == "contact")
+async def cb_contact(callback: types.CallbackQuery):
+    await callback.message.answer("📝 **Murojaat qoldirish:**\n\nTaklif, shikoyat yoki savollaringiz bo'lsa yuborishingiz mumkin. Tez orada adminlarga yo'naltiriladi.", parse_mode="Markdown")
     await callback.answer()
 
 # --- 7 TA YO'NALISH KOORDINATORLARI MATNI ---
@@ -198,11 +204,6 @@ async def cb_coordinators(callback: types.CallbackQuery):
     await callback.message.edit_text(text=coordinators_text, parse_mode="Markdown", reply_markup=builder.as_markup())
     await callback.answer()
 
-@dp.callback_query(F.data == "contact")
-async def cb_contact(callback: types.CallbackQuery):
-    await callback.message.answer("📝 Murojaat qoldirish:\n\nTaklif, shikoyat yoki savollaringiz bo'lsa yuborishingiz mumkin.")
-    await callback.answer()
-
 # --- DINAMIK REYTING DIAGRAMMASI FUNKSIYASI ---
 @dp.callback_query(F.data == "rating")
 async def cb_rating(callback: types.CallbackQuery):
@@ -217,7 +218,8 @@ async def cb_rating(callback: types.CallbackQuery):
     if not top_users:
         rating_text += "ℹ️ Hozircha hech kimda ball mavjud emas. Admin ball qo'shgandan so'ng diagramma yangilanadi!"
     else:
-        max_score = max([u[1] for u in top_users])
+        scores = [u[1] for u in top_users]
+        max_score = max(scores) if scores else 0
         if max_score == 0: max_score = 1
         
         for index, user in enumerate(top_users, start=1):
@@ -227,11 +229,3 @@ async def cb_rating(callback: types.CallbackQuery):
             bar_length = int((score / max_score) * 8)
             bar = "🟩" * bar_length if bar_length > 0 else "⬜️"
             
-            medals = {1: "🥇", 2: "🥈", 3: "🥉"}
-            medal = medals.get(index, "🔹")
-            
-            rating_text += f"{medal} **{name}**\n   {bar} ({score} ball)\n\n"
-            
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(text="⬅️ Bosh menyuga qaytish", callback_data="main_menu"))
-    await callback.message.edit_text(text=rating_text, parse_mode="Markdown", reply_markup=builder.as_markup())
