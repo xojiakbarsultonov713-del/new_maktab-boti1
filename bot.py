@@ -229,3 +229,5 @@ async def cb_rating(callback: types.CallbackQuery):
             bar_length = int((score / max_score) * 8)
             bar = "🟩" * bar_length if bar_length > 0 else "⬜️"
             
+            medals = {1: "🥇", 2: "🥈", 3: "🥉"}
+            medal = medals.get(index, "🔹")
