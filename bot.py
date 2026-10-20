@@ -8,9 +8,7 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 
 # --- TOKEN VA SOZLAMALAR ---
-# BotFather'dan olingan eng yangi toza token o'rnatildi:
 BOT_TOKEN = "8620955124:AAHnBLXZsrgwpmZy3Yi8Uy_XzjX-AwYVqXU"
-# Sizning shaxsiy Telegram ID raqamingiz bosh admin qilib o'rnatildi:
 ADMIN_ID = 5039354291 
 
 bot = Bot(token=BOT_TOKEN)
@@ -115,8 +113,8 @@ async def admin_save_ball(message: types.Message, state: FSMContext):
         
     try:
         text_parts = message.text.split()
-        target_id = int(text_parts[0])
-        points = int(text_parts[1])
+        target_id = int(text_parts[0])  # Indeks aniq belgilandi
+        points = int(text_parts[1])     # Indeks aniq belgilandi
         
         conn = sqlite3.connect("rating.db")
         cursor = conn.cursor()
@@ -125,7 +123,7 @@ async def admin_save_ball(message: types.Message, state: FSMContext):
         user = cursor.fetchone()
         
         if user:
-            new_score = user[1] + points
+            new_score = int(user[1]) + points
             cursor.execute("UPDATE users SET score = ? WHERE telegram_id = ?", (new_score, target_id))
             conn.commit()
             await message.answer(f"✅ **{user[0]}** (ID: {target_id}) hisobiga {points} ball qo'shildi!\nYangilangan umumiy ball: {new_score}")
@@ -197,7 +195,7 @@ async def cb_coordinators(callback: types.CallbackQuery):
         "*Volontyorlik va ijtimoiy loyihalarni tashkil etadi.*\n\n"
         "───────────────────\n"
         "👥 **Sinf vakillari:** O'quvchilar fikrini yetkazadi va takliflarni ilgari suradi.\n"
-        "🏰 **Klublar:** Qiziqishlar asosidagi faoliyatni amalga oshiradi."
+        "🏰 **Klublar:** Qiziqishlar asosidagi faoliyatni mallaga oshiradi."
     )
     builder = InlineKeyboardBuilder()
     builder.add(types.InlineKeyboardButton(text="⬅️ Bosh menyuga qaytish", callback_data="main_menu"))
@@ -218,16 +216,17 @@ async def cb_rating(callback: types.CallbackQuery):
     if not top_users:
         rating_text += "ℹ️ Hozircha hech kimda ball mavjud emas. Admin ball qo'shgandan so'ng diagramma yangilanadi!"
     else:
-        scores = [u[1] for u in top_users]
+        scores = [int(u[1]) for u in top_users]
         max_score = max(scores) if scores else 0
         if max_score == 0: max_score = 1
         
         for index, user in enumerate(top_users, start=1):
             name = user[0]
-            score = user[1]
+            score = int(user[1])
             
             bar_length = int((score / max_score) * 8)
             bar = "🟩" * bar_length if bar_length > 0 else "⬜️"
             
             medals = {1: "🥇", 2: "🥈", 3: "🥉"}
             medal = medals.get(index, "🔹")
+            
